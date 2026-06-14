@@ -45,7 +45,41 @@ clearBtn.addEventListener("click", (e) => {
   clearImage();
 });
 
-function processFile(file) {
+// Shrink large photos in the browser before upload: smaller payload, and the
+// server's (free-tier) CPU doesn't do the heavy resize. 1280 matches
+// MAX_IMAGE_SIDE in the extractor, so the server's own resize becomes a no-op.
+const MAX_UPLOAD_SIDE = 1280;
+
+async function downscaleToJpeg(file, maxSide) {
+  // createImageBitmap applies the photo's EXIF rotation, so sideways phone
+  // shots come out upright (and we re-encode, which strips the EXIF tag).
+  const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+  const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height)); // never upscale
+  const width = Math.round(bitmap.width * scale);
+  const height = Math.round(bitmap.height * scale);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  canvas.getContext("2d").drawImage(bitmap, 0, 0, width, height);
+  bitmap.close?.();
+
+  return canvas.toDataURL("image/jpeg", 0.85);
+}
+
+function setImage(dataUrl, mimeType) {
+  imageBase64 = dataUrl.split(",")[1];
+  imageMimeType = mimeType;
+
+  preview.src = dataUrl;
+  preview.classList.remove("hidden");
+  uploadPrompt.classList.add("hidden");
+  clearBtn.classList.remove("hidden");
+  submitBtn.disabled = false;
+  hideError();
+}
+
+async function processFile(file) {
   if (!file) return;
 
   const allowed = ["image/jpeg", "image/png", "image/webp"];
@@ -58,20 +92,14 @@ function processFile(file) {
     return;
   }
 
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const dataUrl = e.target.result;
-    imageBase64 = dataUrl.split(",")[1];
-    imageMimeType = file.type;
-
-    preview.src = dataUrl;
-    preview.classList.remove("hidden");
-    uploadPrompt.classList.add("hidden");
-    clearBtn.classList.remove("hidden");
-    submitBtn.disabled = false;
-    hideError();
-  };
-  reader.readAsDataURL(file);
+  try {
+    setImage(await downscaleToJpeg(file, MAX_UPLOAD_SIDE), "image/jpeg");
+  } catch (err) {
+    // Older browser or resize failed — fall back to sending the original file.
+    const reader = new FileReader();
+    reader.onload = (e) => setImage(e.target.result, file.type);
+    reader.readAsDataURL(file);
+  }
 }
 
 function clearImage() {
