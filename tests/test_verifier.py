@@ -102,10 +102,46 @@ def test_empty_string_field_treated_as_missing():
 
 
 def test_non_string_model_output_handled_safely():
-    # Model sometimes returns numbers instead of strings; should not crash
-    result = run(overrides={"net_contents": 750})
-    # "750" != "750 mL" so it should fail, not raise
+    # Model sometimes returns a number instead of a string; should not crash
+    result = run(overrides={"net_contents": 999})
+    # 999 doesn't match the 750 mL application value — must fail, not raise
     assert field(result, "net_contents").status == "fail"
+
+
+# --- Lenient field matching (bare declared value vs full label text) ---
+
+def test_alcohol_content_number_within_label_passes():
+    # Application has the bare number; the label wraps it in "ALC. ... BY VOL."
+    result = run(
+        overrides={"alcohol_content": "ALC. 13.3% BY VOL."},
+        app_overrides={"alcohol_content": "13.3"},
+    )
+    assert field(result, "alcohol_content").status == "pass"
+
+
+def test_net_contents_spacing_and_case_passes():
+    result = run(
+        overrides={"net_contents": "750 ML"},
+        app_overrides={"net_contents": "750ml"},
+    )
+    assert field(result, "net_contents").status == "pass"
+
+
+def test_bottler_name_within_full_line_passes():
+    result = run(
+        overrides={"bottler_info": "PRODUCED AND BOTTLED BY BRAVIUM WINES, ST. HELENA, NAPA COUNTY, CA"},
+        app_overrides={"bottler_info": "BRAVIUM WINES"},
+    )
+    assert field(result, "bottler_info").status == "pass"
+
+
+def test_containment_still_rejects_a_real_mismatch():
+    # A different ABV must not slip through just because matching is lenient
+    result = run(
+        overrides={"alcohol_content": "ALC. 14.5% BY VOL."},
+        app_overrides={"alcohol_content": "13.3"},
+    )
+    assert field(result, "alcohol_content").status == "fail"
 
 
 # --- Government warning ---

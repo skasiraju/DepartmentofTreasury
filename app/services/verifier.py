@@ -11,14 +11,21 @@ _REQUIRED_WARNING = (
 )
 
 
-def _normalize(text: str) -> str:
-    return " ".join(text.lower().split())
+def _compact(text: str) -> str:
+    """Lowercase and drop all whitespace, so '750 ML' and '750ml' compare equal."""
+    return "".join(text.split()).lower()
 
 
 def _soft_match(expected: str, found: str) -> bool:
-    """Case-insensitive, whitespace-normalized comparison.
-    Handles common OCR/formatting differences like 'STONE'S THROW' vs 'Stone's Throw'."""
-    return _normalize(expected) == _normalize(found)
+    """A field matches if, ignoring case and spacing, one value contains the other.
+
+    The application usually holds the bare declared value while the label wraps it
+    in extra words — 'BRAVIUM WINES' vs 'PRODUCED AND BOTTLED BY BRAVIUM WINES, ...',
+    or '13.3' vs 'ALC. 13.3% BY VOL.' — so exact equality is too strict. Containment
+    also covers the reverse, where the model reads a shorter value than was declared.
+    (The government warning is checked separately and still has to be exact.)"""
+    e, f = _compact(expected), _compact(found)
+    return bool(e) and bool(f) and (e in f or f in e)
 
 
 def _coerce(value: object) -> str | None:
