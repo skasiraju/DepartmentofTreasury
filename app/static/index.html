@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TTB Label Verifier</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <main>
+    <header>
+      <h1>TTB Label Verifier</h1>
+      <p>Upload a label image and enter the application details to check compliance.</p>
+    </header>
+
+    <form id="verify-form">
+
+      <section class="card">
+        <h2>Label Image</h2>
+        <div id="upload-zone" class="upload-zone" role="button" tabindex="0" aria-label="Upload label image">
+          <div id="upload-prompt">
+            <p class="upload-hint">Drop label image here or <span class="link">click to browse</span></p>
+            <p class="upload-sub">JPEG, PNG, or WebP &mdash; max 15 MB</p>
+          </div>
+          <img id="preview" class="preview hidden" alt="Label preview" />
+          <input id="file-input" type="file" accept="image/jpeg,image/png,image/webp" class="hidden" />
+        </div>
+        <button type="button" id="clear-btn" class="clear-btn hidden">Remove image</button>
+      </section>
+
+      <section class="card">
+        <h2>Application Details</h2>
+        <div class="fields">
+          <div class="field">
+            <label for="brand_name">Brand Name <span class="req">*</span></label>
+            <input id="brand_name" type="text" placeholder="OLD TOM DISTILLERY" required />
+          </div>
+          <div class="field">
+            <label for="class_type">Class / Type <span class="req">*</span></label>
+            <input id="class_type" type="text" placeholder="Kentucky Straight Bourbon Whiskey" required />
+          </div>
+          <div class="field">
+            <label for="alcohol_content">Alcohol Content <span class="req">*</span></label>
+            <input id="alcohol_content" type="text" placeholder="45% Alc./Vol. (90 Proof)" required />
+          </div>
+          <div class="field">
+            <label for="net_contents">Net Contents <span class="req">*</span></label>
+            <input id="net_contents" type="text" placeholder="750 mL" required />
+          </div>
+          <div class="field">
+            <label for="bottler_info">Bottler / Producer <span class="req">*</span></label>
+            <input id="bottler_info" type="text" placeholder="Old Tom Distillery, Lexington, KY 40511" required />
+          </div>
+          <div class="field">
+            <label for="country_of_origin">Country of Origin</label>
+            <input id="country_of_origin" type="text" placeholder="Leave blank for domestic products" />
+          </div>
+        </div>
+      </section>
+
+      <div id="error-msg" class="error-msg hidden"></div>
+
+      <button type="submit" id="submit-btn" class="submit-btn" disabled>Verify Label</button>
+    </form>
+
+    <section id="results" class="hidden"></section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

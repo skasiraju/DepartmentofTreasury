@@ -1,0 +1,11 @@
+# Web framework + server
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+pydantic>=2.0
+
+# Label extraction (OpenAI vision) + image handling
+openai>=1.50.0
+pillow>=10.0.0
+
+# Config
+python-dotenv>=1.0.0

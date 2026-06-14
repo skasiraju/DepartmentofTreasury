@@ -1,0 +1,14 @@
+{
+  "description": "Label shows 46% ABV but application says 45% — alcohol_content should fail",
+  "image": "images/bourbon_wrong_abv.jpg",
+  "application": {
+    "brand_name": "OLD TOM DISTILLERY",
+    "class_type": "Kentucky Straight Bourbon Whiskey",
+    "alcohol_content": "45% Alc./Vol. (90 Proof)",
+    "net_contents": "750 mL",
+    "bottler_info": "Old Tom Distillery, Lexington, KY 40511",
+    "country_of_origin": ""
+  },
+  "expected_overall": "fail",
+  "expected_failures": ["alcohol_content"]
+}

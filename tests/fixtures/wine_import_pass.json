@@ -1,0 +1,13 @@
+{
+  "description": "Import wine with country of origin — all fields match, should pass",
+  "image": "images/wine_import_pass.jpg",
+  "application": {
+    "brand_name": "Château Bordeaux Reserve",
+    "class_type": "Red Wine",
+    "alcohol_content": "13.5% Alc./Vol.",
+    "net_contents": "750 mL",
+    "bottler_info": "Imported by Prestige Imports, New York, NY 10001",
+    "country_of_origin": "France"
+  },
+  "expected_overall": "pass"
+}
